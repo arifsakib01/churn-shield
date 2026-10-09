@@ -1,0 +1,5 @@
+import Link from "next/link";
+
+export default function TermsPage() {
+  return <main className="min-h-screen bg-mint px-6 py-16"><article className="mx-auto max-w-3xl rounded-2xl bg-white p-8 shadow-soft"><Link href="/" className="font-bold text-forest">← Churn Shield</Link><h1 className="mt-8 text-4xl font-black">Terms of service</h1><p className="mt-4 text-slate-600">Churn Shield helps businesses communicate with customers about failed subscription payments. You are responsible for lawful use, customer communications, Stripe configuration, and protecting your account credentials.</p><h2 className="mt-8 text-xl font-black">Payments</h2><p className="mt-3 text-slate-600">Subscription charges are processed by Stripe. Recovery outcomes are not guaranteed, and you remain responsible for your billing decisions and customer support.</p><h2 className="mt-8 text-xl font-black">Acceptable use</h2><p className="mt-3 text-slate-600">Do not use Churn Shield for unlawful activity, deceptive messages, unauthorized payment collection, or processing data you do not have permission to use.</p></article></main>;
+}
