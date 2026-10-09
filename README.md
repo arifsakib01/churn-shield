@@ -26,6 +26,8 @@ The `/pricing` page and `/api/billing/checkout` route provide Stripe subscriptio
 
 Owner dashboard authentication uses Supabase Auth. Create a free Supabase project, enable email/password authentication, add the project URL and anon key to `.env`, and run the Prisma migration. Dashboard queries are scoped to the signed-in owner’s user record. Configure your Supabase Auth redirect URL to include `http://localhost:3000` and your production URL.
 
+The production checklist is: deploy the app, run the Prisma migration against production PostgreSQL, configure Supabase redirect URL as `https://YOUR_DOMAIN/auth/callback`, create Stripe recurring prices, configure all Stripe webhook events, verify the Resend sender domain, and add the environment variables from `.env.example` to the host. Do not commit `.env`, credentials, or customer data.
+
 ## GitHub Actions
 
 Pull requests and pushes to `main`/`master` run `.github/workflows/ci.yml`. The workflow installs dependencies, generates Prisma, type-checks TypeScript, and builds Next.js with non-secret CI placeholders. Production Stripe, Resend, and database values must be configured in the hosting provider rather than committed to GitHub.
