@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum FailedInvoiceStatus {
+  PENDING_RECOVERY
+  RECOVERED
+  FAILED
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  stripeUserId  String?        @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  failedInvoices FailedInvoice[]
+}
+
+model FailedInvoice {
+  id              String              @id @default(cuid())
+  userId          String
+  stripeInvoiceId String              @unique
+  stripeCustomerId String
+  customerEmail   String
+  amountDue       Int
+  status          FailedInvoiceStatus @default(PENDING_RECOVERY)
+  recoveryToken   String              @unique
+  createdAt       DateTime            @default(now())
+  recoveredAt     DateTime?
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([stripeCustomerId])
+}
+
+model WebhookLog {
+  id           String   @id @default(cuid())
+  stripeEventId String  @unique
+  type         String
+  processedAt  DateTime @default(now())
+}
