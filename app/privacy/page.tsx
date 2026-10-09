@@ -1,0 +1,5 @@
+import Link from "next/link";
+
+export default function PrivacyPage() {
+  return <main className="min-h-screen bg-mint px-6 py-16"><article className="mx-auto max-w-3xl rounded-2xl bg-white p-8 shadow-soft"><Link href="/" className="font-bold text-forest">← Churn Shield</Link><h1 className="mt-8 text-4xl font-black">Privacy policy</h1><p className="mt-4 text-slate-600">Churn Shield stores account, invoice, customer email, Stripe identifiers, webhook, and subscription metadata needed to provide payment recovery. Card numbers and CVC data are handled directly by Stripe and are never stored by Churn Shield.</p><h2 className="mt-8 text-xl font-black">Service providers</h2><p className="mt-3 text-slate-600">We use Supabase for authentication and database hosting, Stripe for payments, and Resend for transactional email. Configure retention and deletion requests for your organization before production launch.</p><h2 className="mt-8 text-xl font-black">Your responsibility</h2><p className="mt-3 text-slate-600">Only import customer information you are authorized to process. Contact your organization administrator for access or deletion requests.</p></article></main>;
+}
