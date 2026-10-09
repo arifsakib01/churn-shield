@@ -22,6 +22,10 @@ Configure Stripe to send `invoice.payment_failed` and `invoice.payment_succeeded
 
 The `/pricing` page and `/api/billing/checkout` route provide Stripe subscription checkout for Starter, Growth, and Scale. Create recurring Stripe Prices, set `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_GROWTH`, and `STRIPE_PRICE_SCALE`, then add `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted` to your webhook configuration. Never place Stripe secret keys in the browser or repository.
 
+## Free authentication
+
+Owner dashboard authentication uses Supabase Auth. Create a free Supabase project, enable email/password authentication, add the project URL and anon key to `.env`, and run the Prisma migration. Dashboard queries are scoped to the signed-in owner’s user record. Configure your Supabase Auth redirect URL to include `http://localhost:3000` and your production URL.
+
 ## GitHub Actions
 
 Pull requests and pushes to `main`/`master` run `.github/workflows/ci.yml`. The workflow installs dependencies, generates Prisma, type-checks TypeScript, and builds Next.js with non-secret CI placeholders. Production Stripe, Resend, and database values must be configured in the hosting provider rather than committed to GitHub.
