@@ -58,6 +58,49 @@ export async function POST(request: Request) {
         where: { stripeInvoiceId: invoice.id },
         data: { status: "RECOVERED", recoveredAt: new Date() },
       });
+    } else if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      if (session.mode === "subscription" && session.subscription && session.customer && session.customer_details?.email) {
+        const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
+        const customerId = typeof session.customer === "string" ? session.customer : session.customer.id;
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const periodEnd = subscription.items.data[0]?.current_period_end;
+        const currentPeriodEnd = periodEnd ? new Date(periodEnd * 1000) : null;
+        const user = await db.user.upsert({
+          where: { email: session.customer_details.email },
+          update: { stripeUserId: customerId },
+          create: { email: session.customer_details.email, stripeUserId: customerId },
+        });
+        await db.subscription.upsert({
+          where: { stripeSubscriptionId: subscriptionId },
+          update: {
+            userId: user.id,
+            stripeCustomerId: customerId,
+            plan: session.metadata?.plan ?? "growth",
+            status: subscription.status,
+            currentPeriodEnd,
+          },
+          create: {
+            userId: user.id,
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: subscriptionId,
+            plan: session.metadata?.plan ?? "growth",
+            status: subscription.status,
+            currentPeriodEnd,
+          },
+        });
+      }
+    } else if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
+      const subscription = event.data.object as Stripe.Subscription;
+      await db.subscription.updateMany({
+        where: { stripeSubscriptionId: subscription.id },
+        data: {
+          status: subscription.status,
+          currentPeriodEnd: subscription.items.data[0]?.current_period_end
+            ? new Date(subscription.items.data[0].current_period_end * 1000)
+            : null,
+        },
+      });
     }
     return NextResponse.json({ received: true });
   } catch (error) {
