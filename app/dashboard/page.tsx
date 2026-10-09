@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, CircleDollarSign, RefreshCw, ShieldCheck } from "lucide-react";
 import { db } from "@/lib/db";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import ManualRetry from "./manual-retry";
 
 export const dynamic = "force-dynamic";
@@ -8,13 +9,22 @@ export const dynamic = "force-dynamic";
 const money = (cents: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
 
 export default async function DashboardPage() {
-  const [recovered, active, total, recent] = await Promise.all([
-    db.failedInvoice.aggregate({ _sum: { amountDue: true }, where: { status: "RECOVERED" } }),
-    db.failedInvoice.count({ where: { status: "PENDING_RECOVERY" } }),
-    db.failedInvoice.count(),
-    db.failedInvoice.findMany({ orderBy: { createdAt: "desc" }, take: 10, select: { id: true, customerEmail: true, amountDue: true, status: true, createdAt: true, recoveryToken: true } }),
+  const supabase = await createSupabaseServerClient();
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  if (!authUser?.email) return null;
+  const owner = await db.user.upsert({
+    where: { email: authUser.email },
+    update: { authUserId: authUser.id },
+    create: { email: authUser.email, authUserId: authUser.id },
+  });
+  const invoiceWhere = { userId: owner.id };
+  const [recovered, active, total, recoveredCount, recent] = await Promise.all([
+    db.failedInvoice.aggregate({ _sum: { amountDue: true }, where: { ...invoiceWhere, status: "RECOVERED" } }),
+    db.failedInvoice.count({ where: { ...invoiceWhere, status: "PENDING_RECOVERY" } }),
+    db.failedInvoice.count({ where: invoiceWhere }),
+    db.failedInvoice.count({ where: { ...invoiceWhere, status: "RECOVERED" } }),
+    db.failedInvoice.findMany({ where: invoiceWhere, orderBy: { createdAt: "desc" }, take: 10, select: { id: true, customerEmail: true, amountDue: true, status: true, createdAt: true, recoveryToken: true } }),
   ]);
-  const recoveredCount = await db.failedInvoice.count({ where: { status: "RECOVERED" } });
   const recoveryRate = total ? Math.round((recoveredCount / total) * 100) : 0;
 
   return <main className="min-h-screen bg-[#f7faf8] px-5 py-8 md:px-10">
