@@ -18,6 +18,10 @@ Churn Shield is a Next.js App Router application for recovering failed Stripe in
 
 Configure Stripe to send `invoice.payment_failed` and `invoice.payment_succeeded` events to `/api/webhooks/stripe`. The webhook endpoint verifies Stripe’s signature before doing any work and reserves event IDs to make duplicate deliveries safe.
 
+## Selling Churn Shield
+
+The `/pricing` page and `/api/billing/checkout` route provide Stripe subscription checkout for Starter, Growth, and Scale. Create recurring Stripe Prices, set `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_GROWTH`, and `STRIPE_PRICE_SCALE`, then add `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted` to your webhook configuration. Never place Stripe secret keys in the browser or repository.
+
 ## GitHub Actions
 
 Pull requests and pushes to `main`/`master` run `.github/workflows/ci.yml`. The workflow installs dependencies, generates Prisma, type-checks TypeScript, and builds Next.js with non-secret CI placeholders. Production Stripe, Resend, and database values must be configured in the hosting provider rather than committed to GitHub.
