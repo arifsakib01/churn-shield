@@ -1,0 +1,11 @@
+import Link from "next/link";
+
+const plans = [
+  { name: "Starter", price: "$49", description: "For early-stage subscription businesses.", priceKey: "STARTER", features: ["Up to $5k recovered revenue", "Automated recovery emails", "Recovery dashboard"] },
+  { name: "Growth", price: "$149", description: "For teams ready to make churn measurable.", priceKey: "GROWTH", featured: true, features: ["Up to $25k recovered revenue", "Custom retry journeys", "Priority support"] },
+  { name: "Scale", price: "$499", description: "For high-volume recurring revenue teams.", priceKey: "SCALE", features: ["Unlimited recovery campaigns", "Advanced analytics", "Dedicated onboarding"] },
+];
+
+export default function PricingPage() {
+  return <main className="min-h-screen bg-mint px-6 py-16"><div className="mx-auto max-w-6xl"><Link href="/" className="text-sm font-bold text-forest">← Churn Shield</Link><div className="mx-auto mt-16 max-w-2xl text-center"><p className="text-sm font-bold uppercase tracking-[0.2em] text-forest">Simple pricing</p><h1 className="mt-4 text-5xl font-black tracking-tight">Keep more recurring revenue.</h1><p className="mt-5 text-lg text-slate-600">Start recovering failed payments today. Upgrade when your recovery engine grows.</p></div><div className="mt-12 grid gap-5 md:grid-cols-3">{plans.map((plan) => <div key={plan.name} className={`rounded-2xl bg-white p-7 shadow-soft ${plan.featured ? "ring-2 ring-forest" : ""}`}><div className="flex items-center justify-between"><h2 className="text-xl font-black">{plan.name}</h2>{plan.featured && <span className="rounded-full bg-mint px-3 py-1 text-xs font-bold text-forest">Most popular</span>}</div><p className="mt-3 min-h-12 text-sm text-slate-500">{plan.description}</p><p className="mt-6 text-4xl font-black">{plan.price}<span className="text-sm font-normal text-slate-500"> / month</span></p><ul className="mt-7 space-y-3 text-sm text-slate-600">{plan.features.map((feature) => <li key={feature}>✓ {feature}</li>)}</ul><Link href={`/checkout?plan=${plan.priceKey.toLowerCase()}`} className="mt-8 block rounded-xl bg-forest px-4 py-3 text-center font-bold text-white">Start with {plan.name}</Link></div>)}</div></div></main>;
+}
